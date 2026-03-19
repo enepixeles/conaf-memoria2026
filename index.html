@@ -1,242 +1,91 @@
 <!DOCTYPE html>
-<html lang="es-ES">
+<html lang="es">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEMORIA-WEB</title>
+    <title>Lector de EPUB</title>
+    
+    <!-- Librería JSZip -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+    <!-- Librería ePub.js -->
+    <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+    
     <style>
-        /* Fondo de la pantalla para resaltar la "página" */
-        html {
-            background-color: #e6e6e6; /* Color gris de fondo */
-            padding: 40px 20px;
-            display: flex;
-            justify-content: center;
-            box-sizing: border-box;
-        }
-
-        /* Estilo de la "Página Blanca" con márgenes */
-        body#MEMORIA-WEB {
-            background-color: #ffffff;
-            max-width: 800px; /* Ancho máximo de la página */
-            width: 100%;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
             margin: 0;
-            padding: 80px 90px; /* Márgenes interiores amplios */
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15); /* Sombra para efecto de documento */
-            font-family: "Roboto", "Segoe UI", Arial, sans-serif;
-            color: #1a1a1a;
-            box-sizing: border-box;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-
-        /* Reseteo básico de bordes */
-        div.Marco-de-texto-b-sico, 
-        div._idGenObjectStyleOverride-1 {
-            border-style: none;
-        }
-
-        /* Estilo de los Párrafos */
-        p.Cuerpo {
-            font-size: 16px; /* Tamaño de letra legible */
-            font-weight: 300;
-            line-height: 1.8; /* Interlineado cómodo */
-            margin-top: 0;
-            margin-bottom: 24px; /* Espacio entre párrafos */
-            text-align: justify; /* Texto alineado a ambos lados */
-        }
-
-        /* Texto en negrita */
-        span.BOLD {
-            font-weight: 700;
-            color: #000000;
-        }
-
-        /* Títulos */
-        p.h1 {
-            color: #13612d;
-            font-family: "Zilla Slab", Georgia, serif;
-            font-size: 24px;
-            font-weight: bold;
-            line-height: 1.3;
-            margin-top: 50px;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        span.h1 {
-            color: #13612d;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        /* Listas */
-        ul {
-            margin-top: 10px;
-            margin-bottom: 30px;
-            padding-left: 20px;
-        }
-
-        li.LISTA {
-            font-size: 16px;
-            font-weight: 300;
-            line-height: 1.8;
-            margin-bottom: 12px;
-            text-align: justify;
-            list-style-type: disc;
-        }
-
-        /* Contenedores de imágenes adaptables */
-        ._idGenObjectLayout-1 {
-            text-align: center;
-            margin: 40px 0;
+        #viewer {
             width: 100%;
+            max-width: 800px;
+            height: 70vh;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
         }
-
-        /* Imágenes responsivas */
-        img._idGenObjectAttribute-1 {
-            max-width: 100%;
-            height: auto;
-            border-radius: 4px;
-            display: block;
-            margin: 0 auto;
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
         }
-
-        /* Adaptabilidad para teléfonos móviles */
-        @media (max-width: 600px) {
-            html { padding: 10px; }
-            body#MEMORIA-WEB { padding: 40px 30px; }
-            p.Cuerpo { text-align: left; }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
         }
+        button:hover { background-color: #0056b3; }
     </style>
 </head>
-<body id="MEMORIA-WEB" lang="es-ES">
-    
-    <!-- Carta Introductoria -->
-    <div id="_idContainer000" class="Marco-de-texto-b-sico">
-        <p class="Cuerpo">Con gran satisfacción presento ante ustedes la <span class="BOLD">Memoria de Gestión Institucional de la Corporación Nacional Forestal (CONAF) Región de Tarapacá</span>, correspondiente al período <span class="BOLD">2022–2026</span>. Este documento recoge los principales avances, desafíos y aprendizajes obtenidos en la gestión de un territorio marcado por los contrastes entre nuestro altiplano ancestral, el desierto más árido del mundo y su litoral.</p>
-        <p class="Cuerpo">Durante estos cuatro años, enfrentamos un escenario complejo en lo climático, social y presupuestario. Estos desafíos pusieron a prueba nuestra capacidad institucional, impulsándonos a responder con <span class="BOLD">pertinencia, eficiencia y un profundo compromiso público</span>. En este contexto, reafirmamos nuestra misión: proteger, conservar y restaurar el patrimonio natural de Tarapacá, promoviendo una relación sostenible con las comunidades que habitan estos ecosistemas.</p>
-        <p class="Cuerpo">Entre los logros más destacados de este período se encuentra el fortalecimiento de la gestión del <span class="BOLD">Parque Nacional Volcán Isluga y Reserva Nacional Pampa del Tamarugal</span>, a través de acciones de conservación de la biodiversidad, inversión en infraestructura y profundización del trabajo conjunto con comunidades indígenas aymara bajo un enfoque de cogestión y pertinencia cultural.</p>
-        <p class="Cuerpo">Asimismo, avanzamos en la <span class="BOLD">prevención y combate de incendios forestales</span>, con énfasis en la planificación territorial, el fortalecimiento de la coordinación interinstitucional y el contacto directo con las comunidades. Las estadísticas reflejan una mejora sostenida en la capacidad de respuesta regional, en un trabajo constante con otros organismos del Estado y actores locales.</p>
-        <p class="Cuerpo">En materia de <span class="BOLD">forestación y restauración ecológica</span>, consolidamos iniciativas orientadas a la protección de especies como el tamarugo y el algarrobo, fundamentales para los ecosistemas del desierto, así como acciones para mitigar los efectos de la desertificación y el cambio climático.</p>
-        <p class="Cuerpo">Nuestro compromiso con la <span class="BOLD">educación ambiental y la participación ciudadana</span> se tradujo en múltiples talleres, jornadas educativas, y la creación de espacios de diálogo con comunidades escolares, pueblos originarios, organizaciones sociales y gobiernos locales. </p>
-        <p class="Cuerpo"><span class="BOLD">Creemos firmemente que el desarrollo sostenible solo es posible si se construye desde los territorios junto a sus protagonistas.</span></p>
-        <p class="Cuerpo">Todo este trabajo ha sido posible gracias a un equipo humano comprometido, a la colaboración interinstitucional y al respaldo de nuestra Dirección Ejecutiva. Agradezco profundamente la dedicación de cada uno/a de los funcionarios/as de CONAF Tarapacá, quienes han hecho de este periodo una etapa de avances significativos.</p>
-        <p class="Cuerpo">Finalmente, esta memoria no solo busca informar, sino también <span class="BOLD">transparentar nuestra gestión</span>, rendir cuentas a la ciudadanía y sentar las bases para una nueva etapa de trabajo institucional, en la que seguiremos enfrentando desafíos ambientales urgentes, como la escasez hídrica, la pérdida de biodiversidad y la adaptación al cambio climático.</p>
-        <p class="Cuerpo">Reciban un atento saludo, junto a la invitación a seguir construyendo juntos una región más verde, justa y resiliente.</p>
-        <p class="Cuerpo"><span class="BOLD">NATALIA ORTEGA OSSES</span></p>
+<body>
+
+    <h2>Mi Lector EPUB Web</h2>
+    <div id="viewer"></div>
+
+    <div class="controls">
+        <button id="prev">⬅ Anterior</button>
+        <button id="next">Siguiente ➡</button>
     </div>
 
-    <!-- Imágenes Iniciales -->
-    <div class="_idGenObjectLayout-1">
-        <div id="_idContainer001">
-            <img class="_idGenObjectAttribute-1" src="image/Gemini_Generated_Image_4k2egy4k2egy4k2e.png" alt="Generada por Gemini" />
-        </div>
-    </div>
-    <div class="_idGenObjectLayout-1">
-        <div id="_idContainer002">
-            <img class="_idGenObjectAttribute-1" src="image/1.png" alt="Imagen 1" />
-        </div>
-    </div>
-
-    <!-- Funciones, Misión y Visión -->
-    <div id="_idContainer003" class="Marco-de-texto-b-sico">
-        <p class="h1"><span class="h1">FUNCIONES INSTITUCIONALES</span></p>
-        <p class="Cuerpo">El marco normativo forestal en Chile ha experimentado una transformación histórica reciente, pasando de una corporación de derecho privado a un servicio público con mayores facultades. El nuevo Servicio Nacional Forestal, creado oficialmente mediante la Ley N° 21.744, publicada el 23 de mayo de 2025. Esta ley establece su estructura como un servicio público descentralizado, bajo la vigilancia del Ministerio de Agricultura.</p>
-        <p class="Cuerpo">Entre sus principales funciones destacan:</p>
-        <ul>
-            <li class="LISTA">Administrar el Sistema Nacional de Áreas Silvestres Protegidas.</li>
-            <li class="LISTA">Velar por la conservación y manejo sustentable de los recursos forestales.</li>
-            <li class="LISTA">Desarrollar programas de forestación y restauración ecológica, en coordinación con comunidades locales.</li>
-            <li class="LISTA">Prevenir y combatir incendios forestales a través de planes regionales, brigadas, campañas y coordinación intersectorial.</li>
-            <li class="LISTA">Ejecutar planes de control y fiscalización forestal en predios públicos y privados.</li>
-            <li class="LISTA">Promover la educación ambiental y la participación ciudadana para fomentar la cultura del resguardo ambiental.</li>
-            <li class="LISTA">Desarrollar y aplicar instrumentos técnicos y normativos que regulen el manejo de los recursos forestales.</li>
-            <li class="LISTA">Asesorar técnicamente a propietarios y comunidades en el manejo sustentable del bosque nativo.</li>
-        </ul>
-
-        <p class="h1"><span class="h1">Misión</span></p>
-        <p class="Cuerpo">Garantizar la conservación, restauración y el manejo sustentable de los ecosistemas boscosos y xerofíticos del país, para satisfacer la demanda actual y futura por bienes y servicios ecosistémicos y contribuir al desarrollo territorial, de los pueblos originarios, las comunidades vulnerables y la valoración de la biodiversidad en un escenario de crisis climática.</p>
-        <p class="Cuerpo">En la región de Tarapacá esta misión se expresa en un contexto de alta fragilidad ecológica, marcada por la presencia del Desierto de Atacama, el altiplano andino y valles interiores que albergan ecosistemas únicos y especies endémicas, muchas de ellas amenazadas por el cambio climático y la intervención humana.</p>
+    <script>
+        // ==========================================
+        // AQUÍ COLOCAS EL VÍNCULO O RUTA A TU EPUB
+        // ==========================================
+        const urlDelEpub = "MEMORIA-WEB-02.epub"; // Puede ser una URL (https://...) o una ruta local
         
-        <p class="h1"><span class="h1">Visión</span></p>
-        <p class="Cuerpo">“Ser una institución reconocida por liderar la gestión forestal y la conservación del patrimonio natural de Chile, trabajando en alianza con las comunidades y contribuyendo activamente a la sustentabilidad ambiental del territorio”.</p>
-        <p class="Cuerpo">La Dirección Regional de CONAF Tarapacá asume esta visión impulsando una <span class="BOLD">gestión territorial participativa, intercultural y basada en evidencia científica, fortaleciendo la vinculación con pueblos originarios, gobiernos locales, actores públicos y privados, y organizaciones de la sociedad civil.</span></p>
-    </div>
+        // Inicializamos el libro con esa ruta
+        const book = ePub(urlDelEpub);
 
-    <!-- Imágenes Intermedias -->
-    <div class="_idGenObjectLayout-1">
-        <div id="_idContainer004">
-            <img class="_idGenObjectAttribute-1" src="image/2.png" alt="Imagen 2" />
-        </div>
-    </div>
-    <div class="_idGenObjectLayout-1">
-        <div id="_idContainer005">
-            <img class="_idGenObjectAttribute-1" src="image/3.png" alt="Imagen 3" />
-        </div>
-    </div>
+        // Renderizamos el libro dentro del div "viewer"
+        const rendition = book.renderTo("viewer", {
+            width: "100%",
+            height: "100%",
+            spread: "none"
+        });
 
-    <!-- Objetivos Estratégicos y Marco Normativo -->
-    <div id="_idContainer006" class="Marco-de-texto-b-sico">
-        <p class="h1"><span class="h1">OBJETIVOS ESTRATÉGICOS INSTITUCIONALES</span></p>
-        <p class="Cuerpo">La gestión institucional se orienta por un conjunto de <span class="BOLD">objetivos estratégicos</span> que buscan fortalecer la conservación y el manejo sustentable de los ecosistemas boscosos y xerofíticos, así como su aporte al desarrollo territorial y a la resiliencia frente a la crisis climática. Estos lineamientos establecen las prioridades de acción de la Corporación, integrando la protección de la biodiversidad, la gestión sostenible del territorio y el fortalecimiento de la institucionalidad pública.</p>
-        <p class="Cuerpo"><span class="BOLD">Conservación: </span>Asegurar la conservación de los ecosistemas boscosos y xerofíticos tanto dentro como fuera de las Áreas Silvestres Protegidas del Estado, reduciendo el riesgo de desastres ambientales de origen antrópico y natural, con un enfoque preventivo frente a incendios forestales y otros daños ecológicos.</p>
-        <p class="Cuerpo"><span class="BOLD">Manejo de Ecosistemas: </span>Promover la gestión y manejo multifuncional de los paisajes y ecosistemas boscosos y xerofíticos, fomentando la restauración de bosques nativos y formaciones xerofíticas, el uso de soluciones basadas en la naturaleza y prácticas forestales sustentables que resguarden los componentes ambientales.</p>
-        <p class="Cuerpo"><span class="BOLD">Monitoreo: </span>Desarrollar sistemas de monitoreo a distintas escalas que permitan identificar y anticipar procesos naturales y antrópicos que afectan la biodiversidad y la provisión de bienes y servicios ecosistémicos, fortaleciendo la toma de decisiones basada en evidencia.</p>
-        <p class="Cuerpo"><span class="BOLD">Arborización: </span>Impulsar acciones para la creación y fortalecimiento de áreas verdes que contribuyan a la resiliencia de ciudades y territorios, integrando el patrimonio cultural y promoviendo el trabajo con pueblos originarios y comunidades vulnerables.</p>
-        <p class="Cuerpo"><span class="BOLD">Política Pública: </span>Promover el diálogo técnico-político y el desarrollo de instrumentos de política pública orientados a la mitigación y adaptación al cambio climático, con enfoque territorial y articulación a nivel local, regional, nacional e internacional.</p>
-        <p class="Cuerpo"><span class="BOLD">Alianzas: </span>Fomentar la generación de alianzas estratégicas y la colaboración público-privada para fortalecer la gestión institucional y avanzar en el cumplimiento de metas asociadas al cambio climático y la conservación de los ecosistemas.</p>
-        <p class="Cuerpo"><span class="BOLD">Empleos: </span>Generar oportunidades de capacitación y empleo vinculadas a la protección, conservación y manejo de los ecosistemas boscosos y xerofíticos, contribuyendo al desarrollo territorial y al bienestar de pueblos originarios y comunidades vulnerables.</p>
-        <p class="Cuerpo"><span class="BOLD">Transparencia Pública: </span>Garantizar la transparencia en el uso de los recursos públicos y en la gestión institucional, promoviendo una administración eficiente, la entrega oportuna de información y el desarrollo de las personas dentro de la organización.</p>
+        // Mostramos el libro
+        rendition.display();
 
-        <p class="h1"><span class="h1">MARCO NORMATIVO</span></p>
-        <p class="Cuerpo">La labor de CONAF se enmarca en diversas leyes, reglamentos y políticas públicas. A nivel regional, se consideran además los instrumentos de planificación territorial y la normativa ambiental vigente.</p>
-        
-        <p class="h1"><span class="h1">Normativa clave</span></p>
-        <p class="Cuerpo"><span class="BOLD">Ley N° 18.362: </span>Crea el Sistema Nacional de Áreas Silvestres Protegidas del Estado (SNASPE). Es la piedra angular que permite la administración de parques y reservas en la región, asegurando la preservación de ecosistemas únicos como el Salar de Huasco o el Pampa del Tamarugal.</p>
-        <p class="Cuerpo"><span class="BOLD">Ley N° 21.600: </span>(Complementaria al periodo) Crea el Servicio de Biodiversidad y Áreas Protegidas (SBAP), marcando la transición hacia un modelo de gestión integrada de la naturaleza.</p>
-        <p class="Cuerpo"><span class="BOLD">Ley N° 21.744 (2025): </span>Crea el Servicio Nacional Forestal (SERNAFOR) como servicio público descentralizado, reemplazando a la CONAF (entidad de derecho privado) para la gestión, fiscalización y manejo sustentable de bosques.</p>
-        <p class="Cuerpo"><span class="BOLD">Ley N° 20.283: </span>Sobre Recuperación del Bosque Nativo y Fomento Forestal. Vital para la regulación de especies xerofíticas y la protección de formaciones vegetacionales nativas en zonas áridas.</p>
-        <p class="Cuerpo"><span class="BOLD">Ley N° 19.300: </span>Ley sobre Bases Generales del Medio Ambiente, marco general para la protección ambiental en Chile.</p>
-        <p class="Cuerpo"><span class="BOLD">Ley Marco de Cambio Climático (Ley N° 21.455): </span>Transversaliza nuestra gestión, obligando a que los planes regionales de manejo y prevención de incendios consideren variables de resiliencia climática.</p>
-        <ul>
-            <li class="LISTA">Normativa ambiental sectorial y reglamentos internos de CONAF.</li>
-            <li class="LISTA">Planes regionales de cambio climático, biodiversidad y ordenamiento.</li>
-        </ul>
+        // Controles de botones
+        document.getElementById('next').onclick = () => rendition.next();
+        document.getElementById('prev').onclick = () => rendition.prev();
 
-        <p class="h1"><span class="h1">ENFOQUES TRANSVERSALES DE GESTIÓN</span></p>
-        <p class="Cuerpo">La Dirección Regional de CONAF Tarapacá trabaja con los siguientes enfoques transversales:</p>
-        <p class="Cuerpo"><span class="BOLD">• Interculturalidad: </span>Reconociendo la importancia del trabajo conjunto con pueblos originarios, especialmente el pueblo aymara, respetando su cosmovisión y conocimientos ancestrales.</p>
-        <p class="Cuerpo"><span class="BOLD">• Equidad de género: </span>Promoviendo la participación activa de mujeres en programas forestales, brigadas y espacios de toma de decisiones.</p>
-        <p class="Cuerpo"><span class="BOLD">• Adaptación al cambio climático: </span>Integrando criterios de resiliencia y sostenibilidad en los planes y proyectos institucionales.</p>
-        <p class="Cuerpo"><span class="BOLD">• Participación ciudadana: </span>Fortaleciendo los espacios de diálogo con comunidades y actores locales, especialmente en territorios rurales y de conservación.</p>
-        
-        <p class="h1"><span class="h1">ESTRUCTURA ORGANIZACIONAL REGIONAL</span></p>
-        <p class="Cuerpo">La Dirección Regional de CONAF Tarapacá cuenta con una estructura operativa adaptada a las particularidades del territorio, incluyendo funciones técnicas, administrativas y de fiscalización, está compuesta por:</p>
-        <ul>
-            <li class="LISTA">Dirección Regional</li>
-            <li class="LISTA">Departamento de Administración y Finanzas</li>
-            <li class="LISTA">Departamento de Áreas Silvestres Protegidas</li>
-            <li class="LISTA">Departamento de Protección contra Incendios Forestales</li>
-            <li class="LISTA">Departamento de Fiscalización y Control Forestal</li>
-            <li class="LISTA">Departamento de Bosques y Cambio Climático</li>
-        </ul>
-        <p class="Cuerpo">A nivel territorial, se cuenta con oficinas provinciales y puestos operativos en zonas estratégicas como el altiplano y el Tamarugal.</p>
-    </div>
+        // Controles de teclado
+        document.addEventListener("keyup", function(e) {
+            if (e.key === "ArrowRight") rendition.next();
+            if (e.key === "ArrowLeft") rendition.prev();
+        }, false);
+    </script>
 
-    <!-- Imágenes Finales -->
-    <div class="_idGenObjectLayout-1">
-        <div id="_idContainer007">
-            <img class="_idGenObjectAttribute-1" src="image/012.jpg" alt="Imagen 012" />
-        </div>
-    </div>
-    <div class="_idGenObjectLayout-1">
-        <div id="_idContainer008">
-            <img class="_idGenObjectAttribute-1" src="image/PARQUE_SANTA_ROSA_02.jpg" alt="Parque Santa Rosa" />
-        </div>
-    </div>
-    <div class="_idGenObjectLayout-1">
-        <div id="_idContainer009">
-            <img class="_idGenObjectAttribute-1" src="image/_MG_0401-Editar.jpg" alt="Paisaje nocturno" />
-        </div>
-    </div>
-    
 </body>
 </html>
